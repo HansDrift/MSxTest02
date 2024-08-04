@@ -213,24 +213,23 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
             return bleServiceFound.getCharacteristic(sensorCharacteristic);
         })
 
-        .then(characteristic => {
+/*        .then(characteristic => {
             console.log("Characteristic discovered:", characteristic.uuid);
-            //setTimeout(function() {
-            //    console.log("Timeout: ");
-            //}, 1000);
             sensorCharacteristicFound = characteristic;
             characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
-            //setTimeout(function() {
-            //    console.log("Timeout: ");
-            //}, 1000);
             return characteristic.startNotifications();
             console.log("Characteristic Notifications Started.");
-            //setTimeout(function() {
-            //    console.log("Timeout: characteristic ", characteristic.uuid);
-            //}, 2000);
-            //return characteristic.readValue();
         })
-
+*/
+        .then(characteristic => {
+            console.log("Characteristic discovered:", characteristic.uuid);
+            sensorCharacteristicFound = characteristic;
+            characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            characteristic.startNotifications();
+            console.log("Characteristic Notifications Started.");
+            return characteristic.readValue();
+        })
+		
         .then(value => {
             console.log("Read value: ", value);
             const decodedValue = new TextDecoder().decode(value);
@@ -247,28 +246,26 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
             console.log("sensorCharT1 : ", bleServer);
             console.log("sensorCharT1 bleServiceFound: ", bleServiceFound);
             console.log("sensorCharT1 bleServer.connected: ", bleServer.connected);
-            //setTimeout(function() {
-            //    console.log("Timeout: service ensorCharT1 ", bleServiceFound);
-            //}, 2000);
             return bleServiceFound.getCharacteristic(sensorCharT1);
         })
 
+ /*       .then(sensorCharT1 => {
+            console.log("Characteristic discovered:", sensorCharT1.uuid);
+            sensorCharT1Found = sensorCharT1;
+            sensorCharT1.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            return sensorCharT1.startNotifications();
+            console.log("Characteristic Notifications Started.");
+
+        })
+*/		
         .then(sensorCharT1 => {
             console.log("Characteristic discovered:", sensorCharT1.uuid);
             sensorCharT1Found = sensorCharT1;
-            //setTimeout(function() {
-            //    console.log("Timeout: ");
-            //}, 1000);
             sensorCharT1.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
-            //setTimeout(function() {
-            //    console.log("Timeout: ");
-            //}, 1000);
-            return sensorCharT1.startNotifications();
+			//sensorCharT1.addEventListener('characteristicvaluechanged', handleCharT1Change);
+            sensorCharT1.startNotifications();
             console.log("Characteristic Notifications Started.");
-            //setTimeout(function() {
-            //    console.log("Timeout: sensorCharT1 ", sensorCharT1.uuid);
-            //}, 1000);
-            //return sensorCharT1.readValue();
+            return sensorCharT1.readValue();
         })
 
         .then(value => {
@@ -277,7 +274,7 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
             console.log("Decoded value: ", decodedValue);
             retrievedValueT1.innerHTML = decodedValue;
         })
-        //T1 Ende ---           
+        //T1 Ende ---
             
         //Error handling ---
         .catch(error => {
@@ -415,6 +412,38 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
         }
     } 
 
+    /*
+    //Characteristic Change funktion
+    function handleCharacteristicChange(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed: ", newValueReceived);
+        retrievedValue.innerHTML = newValueReceived;
+        timestampContainer.innerHTML = getDateTime();
+    } 
+
+    //T1 Change function
+    function handleCharT1Change(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed sensorCharT1: ", newValueReceived);
+        retrievedValueT1.innerHTML = newValueReceived;
+        timestampT1Container.innerHTML = getDateTime();
+    } 
+
+    //T2 Change function
+    function handleCharT2Change(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed sensorCharT2: ", newValueReceived);
+        retrievedValueT2.innerHTML = newValueReceived;
+        timestampT2Container.innerHTML = getDateTime();
+    } 
+
+    //T3 Change function
+    function handleCharT3Change(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed sensorCharT3: ", newValueReceived);
+        retrievedValueT3.innerHTML = newValueReceived;
+        timestampT3Container.innerHTML = getDateTime();
+    } 
 */
     function writeOnCharacteristic(value){
         if (bleServer && bleServer.connected) {
