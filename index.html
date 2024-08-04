@@ -1,0 +1,667 @@
+<!--
+GitHub e36drift@web.de Testfile Google Chrom Android and Windows
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MSx Bluetooth Anzeige/switch -- Testfile01 Google Chrom Android and Windows</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="favicon.ico">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div class="topnav">
+        <h1>MSx Bluetooth Anzeige/switch -- Testfile01 Google Chrom Android and Windows</h1>
+    </div>
+    <div class="content">
+        <div class="card-grid">
+            <div class="card">
+                <p>
+                    <button id="connectBleButton" class="connectButton"> verbinde MSx</button>
+                    <button id="disconnectBleButton" class="disconnectButton"> trenne MSx</button>
+                </p>
+                <p class="gray-label">Bluetooth status: <strong><span id="bleState" style="color:#d13a30;">Verbindung getrennt</span></strong></p>
+                <p class="gray-label">DME: <strong><span id="valueInfoContainer" style="color:#2c40b3;"></span> <span id="timestampInfo"></span></strong></p>            
+            </div>
+        </div>
+        <div class="card-grid">
+            <div class="card">
+                <h2>Ansauglufttemperatur</h2>
+                <p class="reading"><span id="valueT1Container">-123.T1</span> °C</p>
+                <p class="gray-label">Last reading: <span id="timestampT1"></span></p>
+            </div>
+
+            <div class="card">
+                <h2>Kühlmitteltemperatur</h2>
+                <p class="reading"><span id="valueT2Container">-123.T2</span> °C</p>
+                <p class="gray-label">Last reading: <span id="timestampT2"></span></p>
+            </div>
+
+            <div class="card">
+                <h2>Öltemperatur</h2>
+                <p class="reading"><span id="valueT3Container">-123.T3</span> °C</p>
+                <p class="gray-label">Last reading: <span id="timestampT3"></span></p>
+            </div>
+            
+            <div class="card">
+                <h2>Batteriespannung</h2>
+                <p class="reading"><span id="valueBattContainer">-000.Batt</span> V</p>
+                <p class="gray-label">Last reading: <span id="timestampBatt"></span></p>
+            </div>
+            
+            <div class="card">
+                <h2>Kontrollschalter test</h2>
+                <button id="onButton" class="onButton">ON</button>
+                <button id="offButton" class="offButton">OFF</button>
+                <p class="gray-label">Last value sent: <span id="valueSent"></span></p>
+            </div>
+
+            <div class="card">
+                <h2>Zähler</h2>
+                <p class="reading"><span id="valueContainer">---</span></p>
+                <p class="gray-label">Last reading: <span id="timestamp"></span></p>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <p><a href="https://hansdrift.github.io/MSxTest01/">Hans Drift MSx Bluetooth Anzeige/switch Testfile01 Google Chrom Android and Windows</a></p>
+    </div>
+</body>
+<script>
+    // DOM Elements
+    const connectButton = document.getElementById('connectBleButton');
+    const disconnectButton = document.getElementById('disconnectBleButton');
+    const onButton = document.getElementById('onButton');
+    const offButton = document.getElementById('offButton');
+    const retrievedValue = document.getElementById('valueContainer');
+    
+    const retrievedValueT1 = document.getElementById('valueT1Container');
+    const retrievedValueT2 = document.getElementById('valueT2Container');
+    const retrievedValueT3 = document.getElementById('valueT3Container');
+    const retrievedValueBatt = document.getElementById('valueBattContainer');
+    const retrievedValueInfo = document.getElementById('valueInfoContainer');
+
+    const latestValueSent = document.getElementById('valueSent');
+    const bleStateContainer = document.getElementById('bleState');
+    const timestampContainer = document.getElementById('timestamp');
+
+    const timestampT1Container = document.getElementById('timestampT1');
+    const timestampT2Container = document.getElementById('timestampT2');
+    const timestampT3Container = document.getElementById('timestampT3');
+    const timestampBattContainer = document.getElementById('timestampBatt');
+    const timestampInfoContainer = document.getElementById('timestampInfo');
+
+    /*
+    31.07.2024 generiert unter:
+    https://www.uuidgenerator.net/
+    
+    aefef71a-088f-4d64-8b0a-b7f850207df6
+    4427bd07-29e9-470c-adab-f43d9c6f69b3
+    754b92b1-9280-424c-a967-ef50cb01f85f
+    c51f6137-e763-4617-9c0d-6227c6003080
+    06e6e849-8e8c-4c5d-820f-fadea7a63e47
+    20ae8631-5bf5-41e2-a4cc-835295bcc942
+    0cf407a6-3a4d-4abf-b1c6-b478d6021234
+    faf4416a-3741-4f09-b319-d817a50219b5
+    
+    a4e398e8-46a2-4bc1-9001-f251a475985e
+    bb1393db-fc8f-4177-b98d-1557b1bbface
+    */
+    
+    //Define BLE Device Specs
+    var deviceName ='MSx';
+    var bleService = 'aefef71a-088f-4d64-8b0a-b7f850207df6';
+    var sensorCharacteristic= '4427bd07-29e9-470c-adab-f43d9c6f69b3';
+    var ledCharacteristic = '754b92b1-9280-424c-a967-ef50cb01f85f';
+    
+    
+    //Neu
+    var sensorCharT1= 'c51f6137-e763-4617-9c0d-6227c6003080';
+    var sensorCharT2= '06e6e849-8e8c-4c5d-820f-fadea7a63e47';
+    var sensorCharT3= '20ae8631-5bf5-41e2-a4cc-835295bcc942';
+    var sensorCharBatt= '0cf407a6-3a4d-4abf-b1c6-b478d6021234';
+    var sensorCharInfo= 'faf4416a-3741-4f09-b319-d817a50219b5';
+
+
+    //Global Variables to Handle Bluetooth
+    var bleServer;
+    //var bleServiceFound;
+    var bleServiceFound = 0;
+    var sensorCharacteristicFound;
+	var timeoutDME = 10000; //timeout, if Characteristics not updates since 10000msek
+    var alertTimerIdDME = 0; //timeout id
+	
+    //Neu
+    var sensorCharT1Found;
+    var sensorCharT2Found;
+    var sensorCharT3Found;
+    var sensorCharBattFound;
+    var sensorCharInfoFound;
+
+    //Received
+    var receivedValueCharacteristic;
+    var receivedValueT1;
+    var receivedValueT2;
+    var receivedValueT3;
+    var receivedValueBatt;
+    var receivedValueInfo;
+
+    // Connect Button (search for BLE Devices only if BLE is available)
+    connectButton.addEventListener('click', (event) => {
+        if (isWebBluetoothEnabled()){
+            connectToDevice();
+        }
+    });
+
+    // Disconnect Button
+    disconnectButton.addEventListener('click', disconnectDevice);
+
+    // Write to the ESP32 LED Characteristic
+    onButton.addEventListener('click', () => writeOnCharacteristic(1));
+    offButton.addEventListener('click', () => writeOnCharacteristic(0));
+
+    // Check if BLE is available in your Browser
+    function isWebBluetoothEnabled() {
+        if (!navigator.bluetooth) {
+            console.log('Web Bluetooth API is not available in this browser!');
+            bleStateContainer.innerHTML = "Web Bluetooth API is not available in this browser/device!";
+            return false
+        }
+        console.log('Web Bluetooth API supported in this browser.');
+        return true
+    }
+
+    // Connect to BLE Device and Enable Notifications
+    function connectToDevice(){
+        console.log('Initializing Bluetooth...');
+        navigator.bluetooth.requestDevice({
+            filters: [{name: deviceName}],
+            optionalServices: [bleService]
+        })
+        .then(device => {
+            console.log('Device Selected:', device.name);
+            bleStateContainer.innerHTML = 'Verbunden mit ' + device.name;
+            bleStateContainer.style.color = "#24af37";
+            device.addEventListener('gattservicedisconnected', onDisconnected);
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            return device.gatt.connect();
+        })
+        .then(gattServer =>{
+            bleServer = gattServer;
+            console.log("Connected to GATT Server");
+            //setTimeout(function() {
+            //    console.log("Timeout: ", bleServiceFound);
+            //}, 1000);
+            return bleServer.getPrimaryService(bleService);
+        })
+        //connection garrServer ----
+
+        //Characteristic ---
+        .then(service => {
+            console.log("Characteristic bleServer: ", bleServer);
+            console.log("Characteristic bleServer.connected: ", bleServer.connected);
+            if ( bleServiceFound ==0){
+                bleServiceFound = service;
+            }
+            //setTimeout(function() {
+            //    console.log("Timeout service sensorCharacteristic: ", bleServiceFound);
+            //}, 1000);
+            return bleServiceFound.getCharacteristic(sensorCharacteristic);
+        })
+
+        .then(characteristic => {
+            console.log("Characteristic discovered:", characteristic.uuid);
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            sensorCharacteristicFound = characteristic;
+            characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            return characteristic.startNotifications();
+            console.log("Characteristic Notifications Started.");
+            //setTimeout(function() {
+            //    console.log("Timeout: characteristic ", characteristic.uuid);
+            //}, 2000);
+            //return characteristic.readValue();
+        })
+
+        .then(value => {
+            console.log("Read value: ", value);
+            const decodedValue = new TextDecoder().decode(value);
+            console.log("Decoded value: ", decodedValue);
+            retrievedValue.innerHTML = decodedValue;
+        })
+        //Characteristic Ende ---
+
+        //T1 ---
+        .then(service => {
+            if ( bleServiceFound ==0){
+                bleServiceFound = service;
+            }
+            console.log("sensorCharT1 : ", bleServer);
+            console.log("sensorCharT1 bleServiceFound: ", bleServiceFound);
+            console.log("sensorCharT1 bleServer.connected: ", bleServer.connected);
+            //setTimeout(function() {
+            //    console.log("Timeout: service ensorCharT1 ", bleServiceFound);
+            //}, 2000);
+            return bleServiceFound.getCharacteristic(sensorCharT1);
+        })
+
+        .then(sensorCharT1 => {
+            console.log("Characteristic discovered:", sensorCharT1.uuid);
+            sensorCharT1Found = sensorCharT1;
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            sensorCharT1.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            return sensorCharT1.startNotifications();
+            console.log("Characteristic Notifications Started.");
+            //setTimeout(function() {
+            //    console.log("Timeout: sensorCharT1 ", sensorCharT1.uuid);
+            //}, 1000);
+            //return sensorCharT1.readValue();
+        })
+
+        .then(value => {
+            console.log("Read value: ", value);
+            const decodedValue = new TextDecoder().decode(value);
+            console.log("Decoded value: ", decodedValue);
+            retrievedValueT1.innerHTML = decodedValue;
+        })
+        //T1 Ende ---
+
+        //T2---
+        .then(service => {
+            if ( bleServiceFound ==0){
+                bleServiceFound = service;
+            }
+            console.log("sensorCharT2 : ", bleServer);
+            console.log("sensorCharT2 bleServiceFound: ", bleServiceFound);
+            console.log("sensorCharT2 bleServer.connected: ", bleServer.connected);
+            //setTimeout(function() {
+            //    console.log("Timeout: ", bleServiceFound);
+            //}, 1000);
+            return bleServiceFound.getCharacteristic(sensorCharT2);
+        })
+
+        .then(sensorCharT2 => {
+            console.log("Characteristic discovered:", sensorCharT2.uuid);
+            sensorCharT2Found = sensorCharT2;
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            sensorCharT2.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            return sensorCharT2.startNotifications();
+            console.log("Characteristic Notifications Started.");
+            //setTimeout(function() {
+            //    console.log("Timeout: ", sensorCharT2.uuid);
+            //}, 2000);
+            //return sensorCharT2.readValue();
+        })
+
+        /*.then(value => {
+            console.log("Read value: ", value);
+            const decodedValue = new TextDecoder().decode(value);
+            console.log("Decoded value: ", decodedValue);
+            retrievedValueT2.innerHTML = decodedValue;
+        })*/
+        //T2 Ende ---
+
+        //T3---
+        .then(service => {
+            if ( bleServiceFound ==0){
+                bleServiceFound = service;
+            }
+            console.log("sensorCharT3 : ", bleServer);
+            console.log("sensorCharT3 bleServiceFound: ", bleServiceFound);
+            console.log("sensorCharT3 bleServer.connected: ", bleServer.connected);
+            //setTimeout(function() {
+            //    console.log("Timeout: ", bleServiceFound);
+            //}, 2000);
+            return bleServiceFound.getCharacteristic(sensorCharT3);
+        })
+
+        .then(sensorCharT3 => {
+            console.log("Characteristic discovered:", sensorCharT3.uuid);
+            sensorCharT3Found = sensorCharT3;
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            sensorCharT3.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            //setTimeout(function() {
+            //    console.log("Timeout: ");
+            //}, 1000);
+            return sensorCharT3.startNotifications();
+            console.log("Characteristic Notifications Started.");
+            //setTimeout(function() {
+            //    console.log("Timeout: ", sensorCharT3.uuid);
+            //}, 2000);
+            //return sensorCharT3.readValue();
+        })
+
+        /*.then(value => {
+            console.log("Read value: ", value);
+            const decodedValue = new TextDecoder().decode(value);
+            console.log("Decoded value: ", decodedValue);
+            retrievedValueT3.innerHTML = decodedValue;
+        })*/
+        //T3 Ende ---
+
+/*
+        //Batt---
+        .then(service => {
+            if ( bleServiceFound ==0){
+                bleServiceFound = service;
+            }
+            console.log("sensorCharBatt : ", bleServer);
+            console.log("sensorCharBatt bleServiceFound: ", bleServiceFound);
+            console.log("sensorCharBatt bleServer.connected: ", bleServer.connected);
+            return bleServiceFound.getCharacteristic(sensorCharBatt);
+        })
+
+        .then(sensorCharBatt => {
+            console.log("Characteristic discovered:", sensorCharBatt.uuid);
+            sensorCharBattFound = sensorCharBatt;
+            sensorCharBatt.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            return sensorCharBatt.startNotifications();
+            console.log("Characteristic Notifications Started.");
+        })
+
+        /*.then(value => {
+            console.log("Read value: ", value);
+            const decodedValue = new TextDecoder().decode(value);
+            console.log("Decoded value: ", decodedValue);
+            retrievedValueT3.innerHTML = decodedValue;
+        })*/
+        //Batt Ende ---
+/*
+        //Info---
+        .then(service => {
+            if ( bleServiceFound ==0){
+                bleServiceFound = service;
+            }
+            console.log("sensorCharInfo : ", bleServer);
+            console.log("sensorCharInfo bleServiceFound: ", bleServiceFound);
+            console.log("sensorCharInfo bleServer.connected: ", bleServer.connected);
+            return bleServiceFound.getCharacteristic(sensorCharInfo);
+        })
+
+        .then(sensorCharInfo => {
+            console.log("Characteristic discovered:", sensorCharInfo.uuid);
+            sensorCharInfoFound = sensorCharInfo;
+            sensorCharInfo.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            return sensorCharInfo.startNotifications();
+            console.log("Characteristic Notifications Started.");
+        })
+
+        /*.then(value => {
+            console.log("Read value: ", value);
+            const decodedValue = new TextDecoder().decode(value);
+            console.log("Decoded value: ", decodedValue);
+            retrievedValueT3.innerHTML = decodedValue;
+        })*/
+        //Batt Ende ---
+             
+            
+        //Error handling ---
+        .catch(error => {
+            console.log('Error: ', error);
+        })
+    }
+
+    function onDisconnected(event){
+        console.log('Device Disconnected:', event.target.device.name);
+        bleStateContainer.innerHTML = "Verbindung getrennt";
+        bleStateContainer.style.color = "#d13a30";
+        retrievedValueInfo.innerHTML = "---";
+		retrievedValueT1.innerHTML = "---";
+		retrievedValueT2.innerHTML = "---";
+		retrievedValueT3.innerHTML = "---";
+		retrievedValueBatt.innerHTML = "---";
+        //retrievedValueInfo.style.color = "#d13a30";
+        connectToDevice();
+    }
+
+    //Characteristic Change funktion mit Abfrage uuid
+    function handleCharacteristicChange(event){
+        let elem = event.target;
+        let value = elem.value;
+        let elemUuid = elem.uuid;
+        const newValueReceived = new TextDecoder().decode(value);
+        //console.log("Characteristic value changed: ", newValueReceived, " ", elemUuid);
+        //if (elemUuid == )
+        switch (elemUuid){
+
+        case sensorCharacteristic:
+            retrievedValue.innerHTML = newValueReceived;
+            timestampContainer.innerHTML = getDateTime();
+            console.log("sensorCharacteristic: ", newValueReceived, " ", elemUuid, " ", sensorCharacteristic);
+            break;
+        case sensorCharT1:
+            //Test Mehrere Werte teilen
+            //var receivedValueT1 = 'T1 110,33 T2 110,25 T3 141,263 Batt 16,70 Info Mxx2 X06 66,66°C X07 77,77V';
+            receivedValueT1 = newValueReceived;
+            var chars = receivedValueT1.split(' ');
+              if (chars[0] == 'T1' ){
+                  retrievedValueT1.innerHTML = chars[1];
+				  timestampT1Container.innerHTML = getDateTime();
+				  if ( parseInt(chars[1]) > 60 ){						
+						console.log(" >20 " + chars[1]);
+						retrievedValueT1.style.color = "#d13a30";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  } else{
+						console.log(" Else " + chars[1]);
+						retrievedValueT1.style.color = "#000000";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  }
+                	console.log(" -- T1 " + chars[1]);                	
+              }    
+              if (chars[2] == 'T2' ){
+                  retrievedValueT2.innerHTML = chars[3];
+				  timestampT2Container.innerHTML = getDateTime();
+				  if ( parseInt(chars[3]) < 70 ){
+						console.log(" <10 " + chars[3]);
+						retrievedValueT2.style.color = "#2c40b3";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  } else if ( parseInt(chars[3]) > 107 ){						
+						console.log(" >20 " + chars[3]);
+						retrievedValueT2.style.color = "#d13a30";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  } else{
+						console.log(" Else " + chars[3]);
+						retrievedValueT2.style.color = "#000000";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  }
+                	console.log(" -- T2 " + chars[3]);                	
+              }
+              if (chars[4] == 'T3' ){
+                  retrievedValueT3.innerHTML = chars[5];
+				  timestampT3Container.innerHTML = getDateTime();
+				  if ( parseInt(chars[5]) < 70 ){
+						console.log(" <10 " + chars[5]);
+						retrievedValueT3.style.color = "#2c40b3";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  } else if ( parseInt(chars[5]) > 140 ){						
+						console.log(" >20 " + chars[5]);
+						retrievedValueT3.style.color = "#d13a30";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  } else{
+						console.log(" Else " + chars[5]);
+						retrievedValueT3.style.color = "#000000";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  }
+                	console.log(" -- T3 " + chars[5]);                	
+              }
+              if (chars[6] == 'Batt' ){
+                  retrievedValueBatt.innerHTML = chars[7];
+				  timestampBattContainer.innerHTML = getDateTime();
+				  if ( parseInt(chars[7]) < 12 ){
+						console.log(" <10 " + chars[7]);
+						retrievedValueBatt.style.color = "#d13a30";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  } else if ( parseInt(chars[7]) > 15 ){						
+						console.log(" >20 " + chars[7]);
+						retrievedValueBatt.style.color = "#d13a30";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  } else{
+						console.log(" Else " + chars[7]);
+						retrievedValueBatt.style.color = "#000000";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
+				  }
+                	console.log(" -- Batt " + chars[7]);                	
+              } 
+              if (chars[8] == 'Info' ){
+ 				  clearTimeout(alertTimerIdDME);
+				  console.log("clearTimeout "  + alertTimerIdDME + " Time: " + timeoutDME);
+				  retrievedValueInfo.innerHTML = chars[9];
+				  timestampInfoContainer.innerHTML = getDateTime();
+                  console.log(" -- Info " + chars[9]);
+				  alertTimerIdDME = setTimeout ( "setDMEtimeout()", timeoutDME );
+				  console.log("alertTimerIdDME 2 "  + alertTimerIdDME + " Time: " + timeoutDME);
+              }          
+            //retrievedValueT1.innerHTML = receivedValueT1;
+            timestampT1Container.innerHTML = getDateTime();
+            console.log("sensorCharT1: ", newValueReceived, " ", elemUuid, " ", sensorCharT1);
+        break;
+        /*
+		case sensorCharT2:
+            //retrievedValueT2.innerHTML = newValueReceived;
+            //timestampT2Container.innerHTML = getDateTime();
+            console.log("sensorCharT2: ", newValueReceived, " ", elemUuid, " ", sensorCharT2);
+        break;
+        case sensorCharT3:
+            //retrievedValueT3.innerHTML = newValueReceived;
+            //timestampT3Container.innerHTML = getDateTime();
+            console.log("sensorCharT3: ", newValueReceived, " ", elemUuid, " ", sensorCharT3);
+        break;
+        case sensorCharBatt:
+            //retrievedValueBatt.innerHTML = newValueReceived;
+            //timestampBattContainer.innerHTML = getDateTime();
+            console.log("sensorCharBatt: ", newValueReceived, " ", elemUuid, " ", sensorCharBatt);
+        break;
+        case sensorCharInfo:
+            //retrievedValueInfo.innerHTML = newValueReceived;
+            //timestampInfoContainer.innerHTML = getDateTime();
+            console.log("sensorCharInfo: ", newValueReceived, " ", elemUuid, " ", sensorCharInfo);
+        break;
+		*/
+        default:
+            console.log("Unknown Characteristic: ", newValueReceived, " ", elemUuid);
+        }
+    } 
+
+    /*
+    //Characteristic Change funktion
+    function handleCharacteristicChange(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed: ", newValueReceived);
+        retrievedValue.innerHTML = newValueReceived;
+        timestampContainer.innerHTML = getDateTime();
+    } 
+
+    //T1 Change function
+    function handleCharT1Change(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed sensorCharT1: ", newValueReceived);
+        retrievedValueT1.innerHTML = newValueReceived;
+        timestampT1Container.innerHTML = getDateTime();
+    } 
+
+    //T2 Change function
+    function handleCharT2Change(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed sensorCharT2: ", newValueReceived);
+        retrievedValueT2.innerHTML = newValueReceived;
+        timestampT2Container.innerHTML = getDateTime();
+    } 
+
+    //T3 Change function
+    function handleCharT3Change(event){
+        const newValueReceived = new TextDecoder().decode(event.target.value);
+        console.log("Characteristic value changed sensorCharT3: ", newValueReceived);
+        retrievedValueT3.innerHTML = newValueReceived;
+        timestampT3Container.innerHTML = getDateTime();
+    } 
+*/
+    function writeOnCharacteristic(value){
+        if (bleServer && bleServer.connected) {
+            bleServiceFound.getCharacteristic(ledCharacteristic)
+            .then(characteristic => {
+                console.log("Found the LED characteristic: ", characteristic.uuid);
+                const data = new Uint8Array([value]);
+                return characteristic.writeValue(data);
+            })
+            .then(() => {
+                latestValueSent.innerHTML = value;
+                console.log("Value written to LEDcharacteristic:", value);
+            })
+            .catch(error => {
+                console.error("Error writing to the LED characteristic: ", error);
+            });
+        } else {
+            console.error ("Bluetooth is not connected. Cannot write to characteristic.")
+            window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!")
+        }
+    }
+
+    function disconnectDevice() {
+        console.log("Disconnect Device.");
+        if (bleServer && bleServer.connected) {
+            if (sensorCharacteristicFound) {
+                sensorCharacteristicFound.stopNotifications()
+                    .then(() => {
+                        console.log("Notifications Stopped");
+                        return bleServer.disconnect();
+                    })
+                    .then(() => {
+                        console.log("Device Disconnected");
+                        bleStateContainer.innerHTML = "Verbindung getrennt";
+                        bleStateContainer.style.color = "#d13a30";
+						retrievedValueInfo.innerHTML = "---";
+						retrievedValueT1.innerHTML = "---";
+						retrievedValueT2.innerHTML = "---";
+						retrievedValueT3.innerHTML = "---";
+						retrievedValueBatt.innerHTML = "---";
+						//retrievedValueInfo.style.color = "#d13a30";
+                    })
+                    .catch(error => {
+                        console.log("An error occurred:", error);
+                    });
+            } else {
+                console.log("No characteristic found to disconnect.");
+            }
+        } else {
+            // Throw an error if Bluetooth is not connected
+            console.error("Bluetooth is not connected.");
+            window.alert("Bluetooth is not connected.")
+        }
+    }
+
+    function getDateTime() {
+        var currentdate = new Date();
+        var day = ("00" + currentdate.getDate()).slice(-2); // Convert day to string and slice
+        var month = ("00" + (currentdate.getMonth() + 1)).slice(-2);
+        var year = currentdate.getFullYear();
+        var hours = ("00" + currentdate.getHours()).slice(-2);
+        var minutes = ("00" + currentdate.getMinutes()).slice(-2);
+        var seconds = ("00" + currentdate.getSeconds()).slice(-2);
+
+        var datetime = day + "/" + month + "/" + year + " at " + hours + ":" + minutes + ":" + seconds;
+        return datetime;
+    }
+	
+	//Reset values when not updated since 
+	function setDMEtimeout() {
+		console.log("-----setDMEtimeout-----");
+		retrievedValueInfo.innerHTML = "---";
+		retrievedValueT1.innerHTML = "---";
+		retrievedValueT2.innerHTML = "---";
+		retrievedValueT3.innerHTML = "---";
+		retrievedValueBatt.innerHTML = "---";
+	}
+
+
+</script>
+
+</html>
