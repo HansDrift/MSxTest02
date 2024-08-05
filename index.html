@@ -257,7 +257,7 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
             console.log("Characteristic Notifications Started.");
 
         })
-*/		
+		
         .then(sensorCharT1 => {
             console.log("Characteristic discovered:", sensorCharT1.uuid);
             sensorCharT1Found = sensorCharT1;
@@ -275,7 +275,7 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
             retrievedValueT1.innerHTML = decodedValue;
         })
         //T1 Ende ---
-            
+*/            
         //Error handling ---
         .catch(error => {
             console.log('Error: ', error);
@@ -306,15 +306,15 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
         switch (elemUuid){
 
         case sensorCharacteristic:
-            retrievedValue.innerHTML = newValueReceived;
-            timestampContainer.innerHTML = getDateTime();
-            console.log("sensorCharacteristic: ", newValueReceived, " ", elemUuid, " ", sensorCharacteristic);
-            break;
-        case sensorCharT1:
+        //    retrievedValue.innerHTML = newValueReceived;
+        //    timestampContainer.innerHTML = getDateTime();
+        //    console.log("sensorCharacteristic: ", newValueReceived, " ", elemUuid, " ", sensorCharacteristic);
+        //    break;
+        //case sensorCharT1:
             //Test Mehrere Werte teilen
             //var receivedValueT1 = 'T1 110,33 T2 110,25 T3 141,263 Batt 16,70 Info Mxx2 X06 66,66°C X07 77,77V';
-            receivedValueT1 = newValueReceived;
-            var chars = receivedValueT1.split(' ');
+            receivedValue = newValueReceived;
+            var chars = receivedValue.split(' ');
               if (chars[0] == 'T1' ){
                   retrievedValueT1.innerHTML = chars[1];
 				  timestampT1Container.innerHTML = getDateTime();
@@ -381,6 +381,15 @@ GitHub e36drift@web.de Testfile Google Chrom Android and Windows
 				  alertTimerIdDME = setTimeout ( "setDMEtimeout()", timeoutDME );
 				  console.log("alertTimerIdDME 2 "  + alertTimerIdDME + " Time: " + timeoutDME);
               }          
+              if (chars[10] == 'Value' ){
+ 				  clearTimeout(alertTimerIdDME);
+				  console.log("clearTimeout "  + alertTimerIdDME + " Time: " + timeoutDME);
+				  retrievedValue.innerHTML = chars[11];
+				  timestampContainer.innerHTML = getDateTime();
+                  console.log(" -- Value " + chars[11]);
+				  alertTimerIdDME = setTimeout ( "setDMEtimeout()", timeoutDME );
+				  console.log("alertTimerIdDME 2 "  + alertTimerIdDME + " Time: " + timeoutDME);
+              } 
             //retrievedValueT1.innerHTML = receivedValueT1;
             timestampT1Container.innerHTML = getDateTime();
             console.log("sensorCharT1: ", newValueReceived, " ", elemUuid, " ", sensorCharT1);
