@@ -151,9 +151,10 @@ Test1.html
 
     // Connect Button (search for BLE Devices only if BLE is available)
     connectButton.addEventListener('click', (event) => {
-        if (isWebBluetoothEnabled()){
+        //Prüfung zum Test deaktiviert
+		//if (isWebBluetoothEnabled()){
             connectToDevice();
-        }
+        //}
     });
 
     // Disconnect Button
@@ -177,7 +178,10 @@ Test1.html
     // Connect to BLE Device and Enable Notifications
     function connectToDevice(){
         console.log('Initializing Bluetooth...');
-        navigator.bluetooth.requestDevice({
+        //Hier einfach connect() als Testaufruf ohne BLE
+		//connect();
+		//---
+		navigator.bluetooth.requestDevice({
             filters: [{name: deviceName}],
             optionalServices: [bleService]
         })
@@ -189,7 +193,8 @@ Test1.html
             //setTimeout(function() {
             //    console.log("Timeout: ");
             //}, 1000);
-            return device.gatt.connect();
+			connect(); // Connect ausgelagert für reconnect
+            //return device.gatt.connect();
         })
         .then(gattServer =>{
             bleServer = gattServer;
@@ -282,7 +287,60 @@ Test1.html
             console.log('Error: ', error);
         })
     }
+// Reconnect Test --------------------------------
+	
+function connect() {
+  exponentialBackoff(1000000 /* max retries */, 5 /* seconds delay */,
+    function toTry() {
+      time('Connecting to Bluetooth Device... ');
+      console.log('--Nach Time--');
+	  //return 0; //Test für fail
+	  return bluetoothDevice.gatt.connect();
+    },
+    function success() {
+      //
+	console.log('> connect(): Bluetooth Device connected.');
+	//log('> Bluetooth Device connected. Try disconnect it now.');
+    },
+    function fail() {
+      time('Failed to reconnect.');
+    });
+}
 
+//function onDisconnected() {
+//  log('> Bluetooth Device disconnected');
+//  connect();
+//}
+
+/* Utils */
+
+// This function keeps calling "toTry" until promise resolves or has
+// retried "max" number of times. First retry has a delay of "delay" seconds.
+// "success" is called upon success.
+function exponentialBackoff(max, delay, toTry, success, fail) {
+  toTry() //.then(result => success(result))
+  .catch(_ => {
+    if (max === 0) {
+      return fail();
+    }
+    time('Retrying in ' + delay + 's... (' + max + ' tries left)');
+    setTimeout(function() {
+      exponentialBackoff(--max, delay, toTry, success, fail); //ohne *2 Immer längere Wartezeit
+	  //exponentialBackoff(--max, delay * 2, toTry, success, fail); //*2 Immer längere Wartezeit
+    }, delay * 1000);
+  //});
+}
+
+function time(text) {
+  //
+	console.log('[' + new Date().toJSON().substr(11, 8) + '] ' + text);
+	//log('[' + new Date().toJSON().substr(11, 8) + '] ' + text);
+}
+
+
+
+// Reconnect Test Ende --------------------------------
+	
     function onDisconnected(event){
         console.log('Device Disconnected:', event.target.device.name);
         bleStateContainer.innerHTML = "Verbindung getrennt";
@@ -293,7 +351,9 @@ Test1.html
 		retrievedValueT3.innerHTML = "---";
 		retrievedValueBatt.innerHTML = "---";
         //retrievedValueInfo.style.color = "#d13a30";
-        connectToDevice();
+        //Ab connect() starten (Kein Auswahlfenster)
+	    connect();
+	    //connectToDevice();
     }
 
     //Characteristic Change funktion mit Abfrage uuid
