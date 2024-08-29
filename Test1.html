@@ -318,7 +318,7 @@ function connect() {
 // retried "max" number of times. First retry has a delay of "delay" seconds.
 // "success" is called upon success.
 function exponentialBackoff(max, delay, toTry, success, fail) {
-  toTry() //.then(result => success(result))
+  toTry().then(result => success(result))
   .catch(_ => {
     if (max === 0) {
       return fail();
@@ -328,7 +328,7 @@ function exponentialBackoff(max, delay, toTry, success, fail) {
       exponentialBackoff(--max, delay, toTry, success, fail); //ohne *2 Immer längere Wartezeit
 	  //exponentialBackoff(--max, delay * 2, toTry, success, fail); //*2 Immer längere Wartezeit
     }, delay * 1000);
-  //});
+  });
 }
 
 function time(text) {
