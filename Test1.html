@@ -1,3 +1,4 @@
+
 <!--
 GitHub e36drift@web.de Testfile Google Chrom Android and Windows
 Test1.html
@@ -113,6 +114,7 @@ Test1.html
     
     //Define BLE Device Specs
     var deviceName ='MSx';
+	var deviceA;
     var bleService = 'aefef71a-088f-4d64-8b0a-b7f850207df6';
     var sensorCharacteristic= '4427bd07-29e9-470c-adab-f43d9c6f69b3';
     var ledCharacteristic = '754b92b1-9280-424c-a967-ef50cb01f85f';
@@ -133,6 +135,7 @@ Test1.html
     var sensorCharacteristicFound;
 	var timeoutDME = 10000; //timeout, if Characteristics not updates since 10000msek
     var alertTimerIdDME = 0; //timeout id
+	//var 
 	
     //Neu
     var sensorCharT1Found;
@@ -153,7 +156,7 @@ Test1.html
     connectButton.addEventListener('click', (event) => {
         //Prüfung zum Test deaktiviert
 	if (isWebBluetoothEnabled()){
-            connectToDevice();
+            connectToDevice(deviceA);
         }
     });
 
@@ -176,147 +179,76 @@ Test1.html
     }
 
     // Connect to BLE Device and Enable Notifications
-    function connectToDevice(){
+    async function connectToDevice(device){
         console.log('Initializing Bluetooth...');
         //Hier einfach connect() als Testaufruf ohne BLE
 		//connect();
 		//---
-		navigator.bluetooth.requestDevice({
-            filters: [{name: deviceName}],
-            optionalServices: [bleService]
-        })
-        .then(device => {
-            console.log('Device Selected:', device.name);
-            bleStateContainer.innerHTML = 'Verbunden mit ' + device.name;
-            bleStateContainer.style.color = "#24af37";
-            device.addEventListener('gattservicedisconnected', onDisconnected);
-            //setTimeout(function() {
-            //    console.log("Timeout: ");
-            //}, 1000);
-			connect(); // Connect ausgelagert für reconnect
-            //return device.gatt.connect();
-        })
-        .then(gattServer =>{
-            bleServer = gattServer;
-            console.log("Connected to GATT Server");
-            //setTimeout(function() {
-            //    console.log("Timeout: ", bleServiceFound);
-            //}, 1000);
-            return bleServer.getPrimaryService(bleService);
-        })
-        //connection garrServer ----
-
-        //Characteristic ---
-        .then(service => {
-            console.log("Characteristic bleServer: ", bleServer);
-            console.log("Characteristic bleServer.connected: ", bleServer.connected);
-            if ( bleServiceFound ==0){
-                bleServiceFound = service;
-            }
-            //setTimeout(function() {
-            //    console.log("Timeout service sensorCharacteristic: ", bleServiceFound);
-            //}, 1000);
-            return bleServiceFound.getCharacteristic(sensorCharacteristic);
-        })
-
-/*        .then(characteristic => {
-            console.log("Characteristic discovered:", characteristic.uuid);
-            sensorCharacteristicFound = characteristic;
-            characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
-            return characteristic.startNotifications();
-            console.log("Characteristic Notifications Started.");
-        })
-*/
-        .then(characteristic => {
-            console.log("Characteristic discovered:", characteristic.uuid);
+		try {
+			console.log('device = navigator.bluetooth.requestDevice');			
+			device = await navigator.bluetooth.requestDevice({
+			//const device = await navigator.bluetooth.requestDevice({
+				filters: [{name: deviceName}],
+				optionalServices: [bleService]
+			})
+				console.log('Device Selected: ', device.name);
+				bleStateContainer.innerHTML = 'Verbunden mit ' + device.name;
+				bleStateContainer.style.color = "#24af37";
+				device.addEventListener('gattservicedisconnected', onDisconnected);
+				console.log("Nach gattservicedisconnected()");
+				deviceA = device; //Setze deviceA auf verbundenes Bluetooth Gerät
+				connectGatt(device);
+		}
+        catch(error) {
+            console.log('Error connectToDevice: ', error);
+			//setTimeout(function() {
+				// Code, der erst nach 2 Sekunden ausgeführt wird
+				//alert('Warten! 3Sek. ');
+				//console.log('Warte 3Sek. ');
+			//}, 3000);
+			//console.log('connectToDevice(): ', deviceA);
+			//connectToDevice(deviceA);
+        }
+		
+    }
+	async function connectGatt(device){
+		console.log('connectGatt()', device);
+		try {
+			const server = await device.gatt.connect()
+			console.log('server: ', server);
+			const service = await server.getPrimaryService(bleService);
+			console.log('service: ', service);
+            console.log("Characteristic bleServer: ", server);
+            console.log("Characteristic bleServer.connected: ", server.connected);
+			const characteristic = await service.getCharacteristic(sensorCharacteristic);
+			console.log('characteristic: ', characteristic);
+            console.log("Characteristic uuid discovered: ", characteristic.uuid);
             sensorCharacteristicFound = characteristic;
             characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
             characteristic.startNotifications();
             console.log("Characteristic Notifications Started.");
-            return characteristic.readValue();
-        })
-		
-        .then(value => {
-            console.log("Read value: ", value);
-            const decodedValue = new TextDecoder().decode(value);
-            console.log("Decoded value: ", decodedValue);
-            retrievedValue.innerHTML = decodedValue;
-        })
-        //Characteristic Ende ---
-
-        //T1 ---
-        .then(service => {
-            if ( bleServiceFound ==0){
-                bleServiceFound = service;
-            }
-            console.log("sensorCharT1 : ", bleServer);
-            console.log("sensorCharT1 bleServiceFound: ", bleServiceFound);
-            console.log("sensorCharT1 bleServer.connected: ", bleServer.connected);
-            return bleServiceFound.getCharacteristic(sensorCharT1);
-        })
-
- /*       .then(sensorCharT1 => {
-            console.log("Characteristic discovered:", sensorCharT1.uuid);
-            sensorCharT1Found = sensorCharT1;
-            sensorCharT1.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
-            return sensorCharT1.startNotifications();
-            console.log("Characteristic Notifications Started.");
-
-        })
-		
-        .then(sensorCharT1 => {
-            console.log("Characteristic discovered:", sensorCharT1.uuid);
-            sensorCharT1Found = sensorCharT1;
-            sensorCharT1.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
-			//sensorCharT1.addEventListener('characteristicvaluechanged', handleCharT1Change);
-            sensorCharT1.startNotifications();
-            console.log("Characteristic Notifications Started.");
-            return sensorCharT1.readValue();
-        })
-
-        .then(value => {
-            console.log("Read value: ", value);
-            const decodedValue = new TextDecoder().decode(value);
-            console.log("Decoded value: ", decodedValue);
-            retrievedValueT1.innerHTML = decodedValue;
-        })
-        //T1 Ende ---
-*/            
-        //Error handling ---
-        .catch(error => {
-            console.log('Error: ', error);
-        })
+            bleServer = server;
+			//const value = await characteristic.readValue();
+            //console.log("value: ", value);
+            //const decodedValue = new TextDecoder().decode(value);
+            //console.log("Decoded value: ", decodedValue);
+            //Im Zähler Datenmüll vermeiden
+			//retrievedValue.innerHTML = decodedValue;
+		}
+        catch(error) {
+            console.log('connectGatt(): ', error);
+			setTimeout(function() {
+				// Code, der erst nach 2 Sekunden ausgeführt wird
+				//alert('Warten! 3Sek. ');
+				console.log('Warte 3Sek. ');
+				console.log('connectGatt(): ', deviceA);
+				connectGatt(deviceA);
+			}, 3000);
+			console.log('connectGatt() nach setTimeout: ', deviceA);
+			//connectGatt(deviceA);
+        }
     }
-// Reconnect Test --------------------------------
-	
-function connect() {
-  exponentialBackoff(1000000 /* max retries */, 5 /* seconds delay */,
-    function toTry() {
-      time('Connecting to Bluetooth Device... ');
-      console.log('--Nach Time--');
-	  //return 0; //Test für fail
-	  return bluetoothDevice.gatt.connect();
-    },
-    function success() {
-      //
-	console.log('> connect(): Bluetooth Device connected.');
-	//log('> Bluetooth Device connected. Try disconnect it now.');
-    },
-    function fail() {
-      time('Failed to reconnect.');
-    });
-}
-
-//function onDisconnected() {
-//  log('> Bluetooth Device disconnected');
-//  connect();
-//}
-
-/* Utils */
-
-// This function keeps calling "toTry" until promise resolves or has
-// retried "max" number of times. First retry has a delay of "delay" seconds.
-// "success" is called upon success.
+/* //Aktuell nicht genutzt	
 function exponentialBackoff(max, delay, toTry, success, fail) {
   toTry().then(result => success(result))
   .catch(_ => {
@@ -337,12 +269,11 @@ function time(text) {
 	//log('[' + new Date().toJSON().substr(11, 8) + '] ' + text);
 }
 
-
-
+*/
 // Reconnect Test Ende --------------------------------
 	
     function onDisconnected(event){
-        console.log('Device Disconnected:', event.target.device.name);
+        console.log('----------------------------onDisconnected -- Device Disconnected:', event.target.device.name);
         bleStateContainer.innerHTML = "Verbindung getrennt";
         bleStateContainer.style.color = "#d13a30";
         retrievedValueInfo.innerHTML = "---";
@@ -352,8 +283,9 @@ function time(text) {
 		retrievedValueBatt.innerHTML = "---";
         //retrievedValueInfo.style.color = "#d13a30";
         //Ab connect() starten (Kein Auswahlfenster)
-	    connect();
-	    //connectToDevice();
+	    //connect();
+	    connectGatt(deviceA);
+		//connectToDevice();
     }
 
     //Characteristic Change funktion mit Abfrage uuid
@@ -362,8 +294,6 @@ function time(text) {
         let value = elem.value;
         let elemUuid = elem.uuid;
         const newValueReceived = new TextDecoder().decode(value);
-        //console.log("Characteristic value changed: ", newValueReceived, " ", elemUuid);
-        //if (elemUuid == )
         switch (elemUuid){
 
         case sensorCharacteristic:
@@ -451,73 +381,24 @@ function time(text) {
 				  alertTimerIdDME = setTimeout ( "setDMEtimeout()", timeoutDME );
 				  console.log("alertTimerIdDME 2 "  + alertTimerIdDME + " Time: " + timeoutDME);
               } 
-            //retrievedValueT1.innerHTML = receivedValueT1;
             timestampT1Container.innerHTML = getDateTime();
             console.log("sensorCharT1: ", newValueReceived, " ", elemUuid, " ", sensorCharT1);
         break;
-        /*
-		case sensorCharT2:
-            //retrievedValueT2.innerHTML = newValueReceived;
-            //timestampT2Container.innerHTML = getDateTime();
-            console.log("sensorCharT2: ", newValueReceived, " ", elemUuid, " ", sensorCharT2);
-        break;
-        case sensorCharT3:
-            //retrievedValueT3.innerHTML = newValueReceived;
-            //timestampT3Container.innerHTML = getDateTime();
-            console.log("sensorCharT3: ", newValueReceived, " ", elemUuid, " ", sensorCharT3);
-        break;
-        case sensorCharBatt:
-            //retrievedValueBatt.innerHTML = newValueReceived;
-            //timestampBattContainer.innerHTML = getDateTime();
-            console.log("sensorCharBatt: ", newValueReceived, " ", elemUuid, " ", sensorCharBatt);
-        break;
-        case sensorCharInfo:
-            //retrievedValueInfo.innerHTML = newValueReceived;
-            //timestampInfoContainer.innerHTML = getDateTime();
-            console.log("sensorCharInfo: ", newValueReceived, " ", elemUuid, " ", sensorCharInfo);
-        break;
-		*/
+
         default:
             console.log("Unknown Characteristic: ", newValueReceived, " ", elemUuid);
         }
     } 
 
-    /*
-    //Characteristic Change funktion
-    function handleCharacteristicChange(event){
-        const newValueReceived = new TextDecoder().decode(event.target.value);
-        console.log("Characteristic value changed: ", newValueReceived);
-        retrievedValue.innerHTML = newValueReceived;
-        timestampContainer.innerHTML = getDateTime();
-    } 
-
-    //T1 Change function
-    function handleCharT1Change(event){
-        const newValueReceived = new TextDecoder().decode(event.target.value);
-        console.log("Characteristic value changed sensorCharT1: ", newValueReceived);
-        retrievedValueT1.innerHTML = newValueReceived;
-        timestampT1Container.innerHTML = getDateTime();
-    } 
-
-    //T2 Change function
-    function handleCharT2Change(event){
-        const newValueReceived = new TextDecoder().decode(event.target.value);
-        console.log("Characteristic value changed sensorCharT2: ", newValueReceived);
-        retrievedValueT2.innerHTML = newValueReceived;
-        timestampT2Container.innerHTML = getDateTime();
-    } 
-
-    //T3 Change function
-    function handleCharT3Change(event){
-        const newValueReceived = new TextDecoder().decode(event.target.value);
-        console.log("Characteristic value changed sensorCharT3: ", newValueReceived);
-        retrievedValueT3.innerHTML = newValueReceived;
-        timestampT3Container.innerHTML = getDateTime();
-    } 
-*/
-    function writeOnCharacteristic(value){
+	
+    //funktioniert nicht mehr seit reconnect Prüfen!!!
+	function writeOnCharacteristic(value){
+        console.log("Disconnect Device.");
+        console.log("bleServer:", bleServer);
+		console.log("bleServer.connected:", bleServer.connected);
         if (bleServer && bleServer.connected) {
-            bleServiceFound.getCharacteristic(ledCharacteristic)
+            console.log("if ");
+			bleServiceFound.getCharacteristic(ledCharacteristic)
             .then(characteristic => {
                 console.log("Found the LED characteristic: ", characteristic.uuid);
                 const data = new Uint8Array([value]);
@@ -525,9 +406,11 @@ function time(text) {
             })
             .then(() => {
                 latestValueSent.innerHTML = value;
+				console.log("if Value");
                 console.log("Value written to LEDcharacteristic:", value);
             })
             .catch(error => {
+				console.log("if  ERR");
                 console.error("Error writing to the LED characteristic: ", error);
             });
         } else {
@@ -536,15 +419,49 @@ function time(text) {
         }
     }
 
+/*
+
+	
+    async function writeOnCharacteristic(value){
+        console.log("Disconnect Device.");
+        console.log("bleServer:", bleServer);
+		console.log("bleServer.connected:", bleServer.connected);
+        if (bleServer && bleServer.connected) {
+            console.log("if ");
+			try {
+				//const characteristic = await bleServiceFound.getCharacteristic(ledCharacteristic)
+				//.then(characteristic => {
+					console.log("Found the LED characteristic: ", characteristic.uuid);
+					const data = new Uint8Array([value]);
+					await ledCharacteristic.writeValue(data);
+                latestValueSent.innerHTML = value;
+				console.log("if Value");
+                console.log("Value written to LEDcharacteristic:", value);
+            } catch(error) {
+				console.log("if  ERR");
+                console.error("Error writing to the LED characteristic: ", error);
+            };
+        } else {
+            console.error ("Bluetooth is not connected. Cannot write to characteristic.")
+            window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!")
+        }
+    }
+
+
+*/
+
     function disconnectDevice() {
         console.log("Disconnect Device.");
-        if (bleServer && bleServer.connected) {
+        console.log("disconnectDevice bleServer:", bleServer);
+		console.log("disconnectDevice bleServer.connected:", bleServer.connected);
+		if (bleServer && bleServer.connected) {
             if (sensorCharacteristicFound) {
                 sensorCharacteristicFound.stopNotifications()
                     .then(() => {
                         console.log("Notifications Stopped");
-                        return bleServer.disconnect();
-                    })
+                        clearTimeout(alertTimerIdDME);
+						deviceA = 0; //Setze deviceA auf verbundenes Bluetooth Gerät
+						return bleServer.disconnect();                    })
                     .then(() => {
                         console.log("Device Disconnected");
                         bleStateContainer.innerHTML = "Verbindung getrennt";
@@ -590,6 +507,9 @@ function time(text) {
 		retrievedValueT2.innerHTML = "---";
 		retrievedValueT3.innerHTML = "---";
 		retrievedValueBatt.innerHTML = "---";
+		console.log("connectGatt ", deviceA);
+		connectGatt(deviceA);
+		//connectToDevice();
 	}
 
 
