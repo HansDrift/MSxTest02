@@ -14,6 +14,12 @@ Test1: https://hansdrift.github.io/MSxTest02/Test1.html
 Test Ein/Ausblenden: https://hansdrift.github.io/MSxTest02/index3.html
 
 
+style2:
+
+
+Test Ein/Ausblenden: https://hansdrift.github.io/MSxTest02/index4.html
+
+
 index_alt: https://hansdrift.github.io/MSxTest02/index_alt.html
 
 
