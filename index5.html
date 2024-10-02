@@ -496,23 +496,23 @@ function time(text) {
 
     //Click on 
     function otFunction() {
-    var at = document.getElementById("AT");
-    var kt = document.getElementById("KT");
-    var ot = document.getElementById("OT");
-    var st = document.getElementById("ST");
-    if (ot.style.display === "none") {
-        at.style.display = "block"; //einblenden
-        kt.style.display = "block";
-        ot.style.display = "block";
-        st.style.display = "block";
-        console.log("t.style.display block ", ot.style.display);
-    } else {
-        at.style.display = "none"; //ausblenden
-        kt.style.display = "none";
-        ot.style.display = "none";
-        st.style.display = "none";
-        console.log("t.style.display none ", ot.style.display); 
-    }
+        var at = document.getElementById("AT");
+        var kt = document.getElementById("KT");
+        var ot = document.getElementById("OT");
+        var st = document.getElementById("ST");
+        if (ot.style.display === "none") {
+            at.style.display = "block"; //einblenden
+            kt.style.display = "block";
+            ot.style.display = "block";
+            st.style.display = "block";
+            console.log("t.style.display block ", ot.style.display);
+        } else {
+            at.style.display = "none"; //ausblenden
+            kt.style.display = "none";
+            ot.style.display = "none";
+            st.style.display = "none";
+            console.log("t.style.display none ", ot.style.display); 
+        }
     }
     //InputButton1 Daten in Variable speichern und an Bluetooth senden
     function InputButton1(){
