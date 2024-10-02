@@ -68,11 +68,19 @@ MSx Bluetooth display/switch -- 04a and S3z04a Testfile02 Google Chrom Android a
                 <p class="reading"><span id="valueContainer">---</span></p>
                 <p class="gray-label">Last reading: <span id="timestamp"></span></p>
             </div>
-
         </div>
     </div>
     <div class="card">
         <button id="OT" onclick="otFunction()" class="offButton">show</button>
+    </div>
+    <div class="card-grid">
+        <div class="card">
+            <form id="form" onsubmit="return false;">
+                <input   type="text" id="userInput1">
+                <input   type="submit" onclick="InputButton1()" class="onButton">
+            </form>
+            <p class="gray-label"><span id="valueUserInput1">-123.V1</span></p>
+        </div>
     </div>
     <div class="footer">
         <p>Testfile MSx Bluetooth display/switch -- 04a and S3z04a Testfile02 Google Chrom Android and Windows</p>    
@@ -102,6 +110,7 @@ MSx Bluetooth display/switch -- 04a and S3z04a Testfile02 Google Chrom Android a
     const timestampBattContainer = document.getElementById('timestampBatt');
     const timestampInfoContainer = document.getElementById('timestampInfo');
 
+    const userInput1Container = document.getElementById('valueUserInput1');
     /*
     31.07.2024 generiert unter:
     https://www.uuidgenerator.net/
@@ -157,6 +166,8 @@ MSx Bluetooth display/switch -- 04a and S3z04a Testfile02 Google Chrom Android a
     var receivedValueT3;
     var receivedValueBatt;
     var receivedValueInfo;
+
+    var receivedUserInput1;
 
     // Connect Button (search for BLE Devices only if BLE is available)
     connectButton.addEventListener('click', (event) => {
@@ -483,26 +494,34 @@ function time(text) {
 		//connectToDevice();
 	}
 
-//Click on 
-function otFunction() {
-  var at = document.getElementById("AT");
-  var kt = document.getElementById("KT");
-  var ot = document.getElementById("OT");
-  var st = document.getElementById("ST");
-  if (ot.style.display === "none") {
-    at.style.display = "block"; //einblenden
-    kt.style.display = "block";
-    ot.style.display = "block";
-    st.style.display = "block";
-    console.log("t.style.display block ", ot.style.display);
-  } else {
-    at.style.display = "none"; //ausblenden
-    kt.style.display = "none";
-    ot.style.display = "none";
-    st.style.display = "none";
-    console.log("t.style.display none ", ot.style.display); 
-  }
-}
+    //Click on 
+    function otFunction() {
+    var at = document.getElementById("AT");
+    var kt = document.getElementById("KT");
+    var ot = document.getElementById("OT");
+    var st = document.getElementById("ST");
+    if (ot.style.display === "none") {
+        at.style.display = "block"; //einblenden
+        kt.style.display = "block";
+        ot.style.display = "block";
+        st.style.display = "block";
+        console.log("t.style.display block ", ot.style.display);
+    } else {
+        at.style.display = "none"; //ausblenden
+        kt.style.display = "none";
+        ot.style.display = "none";
+        st.style.display = "none";
+        console.log("t.style.display none ", ot.style.display); 
+    }
+    }
+    //InputButton1 Daten in Variable speichern und an Bluetooth senden
+    function InputButton1(){
+        // Button geklickt
+        console.log("InputButton1 geklickt");
+        //window.alert("InputButton1 geklickt");
+        receivedUserInput1 = document.getElementById("userInput1").value;
+        userInput1Container.innerHTML = receivedUserInput1;
+    }
 
 </script>
 
