@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MSx Bluetooth display</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" class="js-site-favicon" type="image/x-icon" href="HDlogo01.ico">
+    <style>
+        html {
+            font-family: Arial, Helvetica, sans-serif;
+            display: inline-block;
+            text-align: center;
+        }
+        h1 {
+            text-align: bottom;
+            font-size: 1.2rem;
+            color: rgb(255, 255, 255);
+        }
+        .topnav {
+            overflow: hidden;
+            background-color: #000000;
+        }
+        body {
+            margin: 0;
+        }
+        .content {
+            padding: 10px;
+        }
+        .card-grid {
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: 10px;
+            display: grid;
+            grid-gap: 1rem;
+            line-height: 0.01;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+        .card {
+            background-color: white;
+            box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
+        }
+        .card-grid2 {
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: 0px;
+            display: grid;
+            grid-gap: 1rem;
+            line-height: 0.01;
+            grid-template-columns: repeat(auto-fit, minmax(3px, 1fr));
+        }
+        .card2 {
+            text-align: bottom;
+            background-color: rgb(255, 255, 255);
+            box-shadow: 2px 2px 12px 1px rgba(151, 223, 68, 0.5);
+        }
+        button {
+            color: rgb(255, 255, 255);
+            padding: 14px 20px;
+            margin: 14px 0;
+            border: none;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .button2 {
+            color: rgb(255, 255, 255);
+            padding: 0% 0%;
+            margin: 0% 0%;
+            border: none;
+            cursor: pointer;
+            border-radius: 0%;
+            background-color: #000000;
+        }
+        .onButton {
+            background-color: #1b8a94;
+        }
+        .offButton {
+            background-color: #5f6c6d;
+        }
+        .connectButton {
+            background-color: #24af37;
+        }
+        .disconnectButton {
+            background-color: #d13a30;
+        }
+        .gray-label {
+            color: #bebebe;
+            line-height: 0.0;
+            font-size: 1rem;
+        }
+        .reading {
+            line-height: 0.0;
+            font-size: 3.5rem;
+        }
+    </style>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div class="topnav">
+        <div class="card-grid2">
+            <h1>
+                <table style="width:100%">
+                    <tr>
+                        <th>MSx Bluetooth display</th>
+                        <th><button id="InfoButton" class="button2"><img src="HDlogo01.ico" height="64"></button></th>
+                    </tr>
+                </table>
+            </h1>
+        </div> 
+    </div>
+    <div class="content">
+        <div class="card-grid">
+            <div class="card">
+                <p>
+                    <button id="connectBleButton" class="connectButton"> verbinde MSx</button>
+                    <button id="disconnectBleButton" class="disconnectButton"> trenne MSx</button>
+                </p>
+                <p class="gray-label">Bluetooth: <strong><span id="bleState" style="color:#d13a30;">Verbindung getrennt</span></strong></p>
+                <p class="gray-label">DME: <strong><span id="valueInfoContainer" style="color:#2c40b3;"></span> <span id="timestampInfo"></span></strong></p> 
+            </div>
+        </div>
+        <div class="card-grid">
+            <div class="card" id="AT">
+                <h2>Ansauglufttemperatur</h2>
+                <p class="reading"><span id="valueT1Container">-123.T1</span> °C</p>
+                <p class="gray-label">Last reading: <span id="timestampT1"></span></p>
+            </div>
+            <div class="card" id="KT">
+                <h2>Kühlmitteltemperatur</h2>
+                <p class="reading"><span id="valueT2Container">-123.T2</span> °C</p>
+                <p class="gray-label">Last reading: <span id="timestampT2"></span></p>
+            </div>
+            <div class="card" id="OP">
+                <h2>Öldruck</h2>
+                <p class="reading"><span id="valueOPContainer">-123.OP</span> bar</p>
+                <p class="gray-label">Last reading: <span id="timestampOP"></span></p>
+            </div>
+            <div class="card" id="OT">
+                <h2>Öltemperatur</h2>
+                <p class="reading"><span id="valueT3Container">-123.T3</span> °C</p>
+                <p class="gray-label">Last reading: <span id="timestampT3"></span></p>
+            </div>
+            <div class="card">
+                <h2>Batteriespannung</h2>
+                <p class="reading"><span id="valueBattContainer">-000.Batt</span> V</p>
+                <p class="gray-label">Last reading: <span id="timestampBatt"></span></p>
+            </div>
+            <div class="card" id="ST">
+                <h2>Kontrollschalter test</h2>
+                <button id="onButton" class="onButton">ON</button>
+                <button id="offButton" class="offButton">OFF</button>
+                <p class="gray-label">Last value sent: <span id="valueSent"></span></p>
+            </div>
+            <div class="card" id="TS">
+                <h2>Zähler</h2>
+                <p class="reading"><span id="valueContainer">---</span></p>
+                <p class="gray-label">Last reading: <span id="timestamp"></span></p>
+            </div> 
+        </div>
+    </div>
+    <div class="footer">
+        <p>MSx Bluetooth display: GPT13 ohne letzten body 04a and S3z04a Google Chrome, Brave in Android und Windows, sowie Apple Bluefy Browser nutzbar.</p> 
+        <p><a href="https://hansdrift.github.io/MSxTemp/">Hans Drift MSx Bluetooth Anzeige</a></p> 
+</body>
+<script>
+    // DOM Elements
+    const connectButton = document.getElementById('connectBleButton');
+    const disconnectButton = document.getElementById('disconnectBleButton');
+    const onButton = document.getElementById('onButton');
+    const offButton = document.getElementById('offButton');
+    const bleStateContainer = document.getElementById('bleState');
+    const retrievedValueInfo = document.getElementById('valueInfoContainer');
+    const timestampInfoContainer = document.getElementById('timestampInfo');
+    const userInput1Container = document.getElementById('valueUserInput1');
+    const at = document.getElementById("AT");
+    const kt = document.getElementById("KT");
+    const ot = document.getElementById("OT");
+    const op = document.getElementById("OP");
+    const st = document.getElementById("ST");
+    const ts = document.getElementById("TS");
+    const deviceName = 'MSx';
+    const bleService = 'aefef71a-088f-4d64-8b0a-b7f850207df6';
+    const sensorCharacteristic = '4427bd07-29e9-470c-adab-f43d9c6f69b3';
+    const ledCharacteristic = '754b92b1-9280-424c-a967-ef50cb01f85f';
+    let bleServer;
+    let deviceA;
+
+    // Check if BLE is available in your Browser
+    function isWebBluetoothEnabled() {
+        if (!navigator.bluetooth) {
+            console.log('Web Bluetooth API is not available in this browser!');
+            bleStateContainer.innerHTML = "Web Bluetooth API is not available in this browser/device!";
+            return false;
+        }
+        console.log('Web Bluetooth API supported in this browser.');
+        return true;
+    }
+
+    // Connect to BLE Device and Enable Notifications
+    async function connectToDevice() {
+        if (!isWebBluetoothEnabled()) return;
+        try {
+            const device = await navigator.bluetooth.requestDevice({
+                filters: [{ name: deviceName }],
+                optionalServices: [bleService]
+            });
+            console.log('Device Selected: ', device.name);
+            bleStateContainer.innerHTML = 'Verbunden mit ' + device.name;
+            bleStateContainer.style.color = "#24af37";
+            device.addEventListener('gattserverdisconnected', onDisconnected);
+            deviceA = device;
+            await connectGatt(device);
+        } catch (error) {
+            console.log('Error connectToDevice: ', error);
+            bleStateContainer.innerHTML = "Verbindung fehlgeschlagen: " + error.message;
+            bleStateContainer.style.color = "#d13a30";
+        }
+    }
+
+    async function connectGatt(device) {
+        try {
+            const server = await device.gatt.connect();
+            bleServer = server;
+            const service = await server.getPrimaryService(bleService);
+            const characteristic = await service.getCharacteristic(sensorCharacteristic);
+            characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
+            await characteristic.startNotifications();
+            const value = await characteristic.readValue();
+            const decodedValue = new TextDecoder().decode(value);
+            bleStateContainer.innerHTML = 'Verbunden mit ' + deviceA.name;
+            bleStateContainer.style.color = "#24af37";
+        } catch (error) {
+            console.log('connectGatt(): ', error);
+            bleStateContainer.innerHTML = "Verbindung fehlgeschlagen: " + error.message;
+            bleStateContainer.style.color = "#d13a30";
+        }
+    }
+
+    function handleCharacteristicChange(event) {
+        const elem = event.target;
+        const value = elem.value;
+        const elemUuid = elem.uuid;
+        const newValueReceived = new TextDecoder().decode(value);
+        switch (elemUuid) {
+            case sensorCharacteristic:
+                // Verarbeite die empfangenen Daten
+                break;
+            default:
+                console.log("Unknown Characteristic: ", newValueReceived, " ", elemUuid);
+        }
+    }
+
+    async function writeOnCharacteristic(value) {
+        if (bleServer && bleServer.connected) {
+            try {
+                const characteristic = await bleServiceFound.getCharacteristic(ledCharacteristic);
+                const data = new Uint8Array([value]);
+                await characteristic.writeValue(data);
+                console.log("Value written to LEDcharacteristic:", value);
+            } catch (error) {
+                console.error("Error writing to the LED characteristic: ", error);
+            }
+        } else {
+            console.error("Bluetooth is not connected. Cannot write to characteristic.");
+            window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!");
+        }
+    }
+
+    function disconnectDevice() {
+        if (bleServer && bleServer.connected) {
+            if (sensorCharacteristicFound) {
+                sensorCharacteristicFound.stopNotifications()
+                    .then(() => bleServer.disconnect())
+                    .then(() => {
+                        bleStateContainer.innerHTML = "Verbindung getrennt";
+                        bleStateContainer.style.color = "#d13a30";
+                    })
+                    .catch(error => console.log("An error occurred:", error));
+            } else {
+                console.log("No characteristic found to disconnect.");
+            }
+        } else {
+            console.error("Bluetooth is not connected.");
+            window.alert("Bluetooth is not connected.");
+        }
+    }
+
+    function onDisconnected(event) {
+        console.log('Device Disconnected:', event.target.device.name);
+        bleStateContainer.innerHTML = "Verbindung getrennt";
+        bleStateContainer.style.color = "#d13a30";
+        connectGatt(deviceA);
+    }
+
+    // InputButton1 Daten in Variable speichern und an Bluetooth senden
+    function InputButton1() {
+        const receivedUserInput1 = document.getElementById("userInput1").value;
+        console.log("InputButton1 geklickt", receivedUserInput1);
+        userInput1Container.innerHTML = receivedUserInput1;
+        writeOnCharacteristic(receivedUserInput1);
+    }
+
+    // Click on 
+    function otFunction() {
+        if (at.style.display === "none") {
+            at.style.display = "block"; //einblenden
+            kt.style.display = "block";
+            ot.style.display = "block";
+            op.style.display = "block";
+            st.style.display = "block";
+            console.log("t.style.display block ", ot.style.display);
+        } else {
+            at.style.display = "none"; //ausblenden
+            kt.style.display = "none";
+            ot.style.display = "none";
+            op.style.display = "none";
+            st.style.display = "none";
+            console.log("t.style.display none ", ot.style.display); 
+        }
+    }
+
+    connectButton.addEventListener('click', connectToDevice);
+    disconnectButton.addEventListener('click', disconnectDevice);
+    onButton.addEventListener('click', () => writeOnCharacteristic(1));
+    offButton.addEventListener('click', () => writeOnCharacteristic(0));
+</script>
+</html>
