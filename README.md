@@ -44,5 +44,7 @@ Test Ein/Ausblenden: https://hansdrift.github.io/MSxTest02/index11.html
 
 GPT12: https://hansdrift.github.io/MSxTest02/index12.html
 
-GPT implate 13: https://hansdrift.github.io/MSxTest02/index13.html
+GPT13 12 ohne letzten body: https://hansdrift.github.io/MSxTest02/index13.html
+
+GPT implate 14: https://hansdrift.github.io/MSxTest02/index14.html
 
