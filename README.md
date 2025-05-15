@@ -1,6 +1,8 @@
 # MSxTest02
 
-Test for for different usage
+Test for different usage.
+Use Chrome or Brave on Android and Windows.
+Use BLE Link Browser on Apple
 
 Test Version 04a and S3z 04a
 
