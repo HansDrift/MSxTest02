@@ -50,3 +50,12 @@ GPT implate 14: https://hansdrift.github.io/MSxTest02/index14.html
 
 i15: https://hansdrift.github.io/MSxTest02/index15.html
 
+i16: https://hansdrift.github.io/MSxTest02/index16.html
+
+MSx on Instagram https://www.instagram.com/p/DCobeYuAszT/?utm_source=ig_web_button_share_sheet
+
+HansDrift on Instagram: https://www.instagram.com/hansdrift78/
+
+MSx on Facebook: https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fhans.drift.18%2Fposts%2Fpfbid0Rz1ujWo2h7vKTy5WarMQAo9idiV4E72aAguHjfStgqXx7ARmGKtgskvFTymf6tBDl&show
+
+HansDrift Dacebook: https://www.facebook.com/hans.drift.18
