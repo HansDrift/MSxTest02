@@ -56,6 +56,9 @@ i15: https://hansdrift.github.io/MSxTest02/index15.html
 
 i16: https://hansdrift.github.io/MSxTest02/index16.html
 
+blink
+i20: https://hansdrift.github.io/MSxTest02/index20.html
+
 MSx on Instagram https://www.instagram.com/p/DCobeYuAszT/?utm_source=ig_web_button_share_sheet
 
 HansDrift on Instagram: https://www.instagram.com/hansdrift78/
