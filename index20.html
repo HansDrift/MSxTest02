@@ -144,7 +144,7 @@ MSx Bluetooth display: i15 korr 04a and S3z04a Google Chrome, Brave in Android u
 
             <div class="card" id="KT">
                 <h2>Kühlmitteltemperatur</h2>
-                <p class="reading"><span id="valueT2Container">-123.T2</span> °C</p>
+                <p class="reading"><span id="valueT2Container">123</span> °C</p>
                 <p class="gray-label">Last reading: <span id="timestampT2"></span></p>
             </div>
 
@@ -479,15 +479,15 @@ function time(text) {
 				  if ( parseInt(chars[5]) < 70 ){
 						console.log(" <10 " + chars[5]);
 						retrievedValueT3.style.color = "#2c40b3";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
-						retrievedValueT2.classList.remove('blink'); //nicht Blinken
+						retrievedValueT3.classList.remove('blink'); //nicht Blinken
 				  } else if ( parseInt(chars[5]) > 140 ){						
 						console.log(" >20 " + chars[5]);
 						retrievedValueT3.style.color = "#d13a30";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
-						retrievedValueT2.classList.add('blink'); //Blinken
+						retrievedValueT3.classList.add('blink'); //Blinken
 				  } else{
 						console.log(" Else " + chars[5]);
 						retrievedValueT3.style.color = "#000000";    // "#d13a30"; rot  "#2c40b3"; blau "#000000"; schwarz
-						retrievedValueT2.classList.remove('blink'); //nicht Blinken
+						retrievedValueT3.classList.remove('blink'); //nicht Blinken
 				  }
 				  if ( chars[5] == "---" ){
                         ot.style.display = "none"; //ausblenden
